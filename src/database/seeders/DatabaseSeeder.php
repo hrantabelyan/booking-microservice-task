@@ -12,6 +12,8 @@ class DatabaseSeeder extends SeederOnce
 
     public function run(): void
     {
-        //
+        $this->call([
+            RoomSeeder::class,
+        ]);
     }
 }
