@@ -1,0 +1,38 @@
+# Docker Development Environment
+docker/logs/
+
+# Docker volumes and data
+.docker/data/
+
+# Claude files
+.claude/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database dumps
+*.sql.gz
+*.sql.backup
+

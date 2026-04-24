@@ -1,0 +1,101 @@
+name: Laravel CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ci-${{ github.ref }}
+      cancel-in-progress: true
+    defaults:
+      run:
+        working-directory: ./src
+
+    services:
+      postgres:
+        image: postgres:18.1
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: testing
+        ports:
+          - 5432:5432
+        options: --health-cmd="pg_isready -U root -d testing" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    env:
+      APP_ENV: testing
+      APP_URL: http://localhost
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: testing
+      DB_USERNAME: root
+      DB_PASSWORD: root
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo, pdo_pgsql, pcntl, redis, intl, zip
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Generate app key
+        run: php artisan key:generate
+
+      - name: Prepare storage directories
+        run: mkdir -p storage/framework/{views,cache,sessions} storage/logs bootstrap/cache
+
+      - name: PHP Syntax Check
+        run: find . \( -path ./vendor -o -path ./storage -o -path ./bootstrap/cache \) -prune -o -type f -name "*.php" -print | xargs -P 4 -n 1 php -l
+
+      - name: Check code style (Pint)
+        run: ./vendor/bin/pint --test
+
+      - name: Static analysis (Larastan)
+        run: ./vendor/bin/phpstan analyse --memory-limit=1G
+
+      - name: Run migrations and seeds
+        run: |
+          php artisan migrate --force
+          php artisan db:install
+          php artisan db:seed --force
+
+      - name: Run tests
+        run: php artisan test --compact
+
+      - name: Run security audit
+        run: composer audit
+
+  deploy:
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: false
+
+    steps:
+#      - name: Deploy to staging
+#        if: github.ref == 'refs/heads/staging'
+#        run: curl -s "${{ secrets.FORGE_STAGING_DEPLOY_HOOK }}"
+
+#      - name: Deploy to production
+#        if: github.ref == 'refs/heads/main'
+#        run: curl -s "${{ secrets.FORGE_PRODUCTION_DEPLOY_HOOK }}"
+      - name: Deploy placeholder
+        run: echo "Deploy step not configured."

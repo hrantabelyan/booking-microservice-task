@@ -1,0 +1,91 @@
+#!/bin/bash
+
+# Pre-push hook:
+# 1. PHP Lint (Syntax Check)
+# 2. Laravel Pint (Style Check & Auto-fix)
+# 3. PHPStan (Static Analysis)
+# All run via Docker Compose.
+
+echo "🚀 Running Pre-push Checks..."
+
+# --- 1. PHP Syntax Check ---
+echo "Running PHP Lint..."
+docker compose exec -T php sh -c 'find . \( -path ./vendor -o -path ./node_modules -o -path ./storage -o -path ./bootstrap/cache \) -prune -o -type f -name "*.php" -print | xargs -P 4 -n 1 php -l'
+
+if [ $? -ne 0 ]; then
+    echo "❌ PHP Lint failed! Fix syntax errors."
+    exit 1
+fi
+echo "✅ PHP Lint passed."
+
+# --- 2. Laravel Pint ---
+echo "Running Laravel Pint Style Check..."
+
+docker compose exec -T php vendor/bin/pint --test
+
+if [ $? -eq 0 ]; then
+    echo "✅ Style check passed."
+else
+    echo "❌ Laravel Pint found style issues!"
+
+    if [ -t 0 ] || [ -e /dev/tty ]; then
+        exec < /dev/tty
+
+        read -p "Do you want to run Pint to fix these issues? [y/N] " fix_yn
+        case $fix_yn in
+            [Yy]* )
+                echo "Running Pint fix..."
+                CHANGED_FILES=$(docker compose exec -T php sh -c 'vendor/bin/pint --format=json 2>/dev/null | php -r "
+                    \$data = json_decode(stream_get_contents(STDIN), true);
+                    foreach (\$data[\"files\"] ?? [] as \$f) {
+                        echo str_replace(\"/var/www/html/\", \"\", \$f[\"name\"]) . PHP_EOL;
+                    }
+                "')
+
+                if [ -z "$CHANGED_FILES" ]; then
+                    echo "No files were changed by Pint."
+                    exit 1
+                fi
+
+                echo "✅ Pint fixed the following files:"
+                echo "$CHANGED_FILES"
+
+                read -p "Do you want to commit these fixes? [y/N] " commit_yn
+                case $commit_yn in
+                    [Yy]* )
+                        echo "$CHANGED_FILES" | xargs git add
+                        git commit -m "pre-push hook :: fix code style with Pint"
+                        echo "✅ Fixed and committed."
+                        echo "ℹ️  You can try to push again."
+                        exit 1
+                        ;;
+                    * )
+                        echo "ℹ️  Files are fixed but not committed. You can review and commit manually."
+                        exit 1
+                        ;;
+                esac
+                ;;
+            * )
+                echo "Aborting push. Please fix style issues manually."
+                exit 1
+                ;;
+        esac
+    else
+        echo "Cannot interact with user (no TTY). Aborting push."
+        echo "Run: docker compose exec -T php vendor/bin/pint"
+        exit 1
+    fi
+fi
+
+# --- 3. PHPStan ---
+echo "Running PHPStan..."
+docker compose exec -T php vendor/bin/phpstan analyse --memory-limit=2G
+
+if [ $? -ne 0 ]; then
+    echo "❌ PHPStan failed! Fix static analysis errors."
+    exit 1
+fi
+echo "✅ PHPStan passed."
+
+echo "🎉 All checks passed. Pushing..."
+exit 0
