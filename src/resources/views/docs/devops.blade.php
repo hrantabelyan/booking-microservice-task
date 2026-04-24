@@ -34,8 +34,14 @@
                 <li><strong>PHPStan (Larastan)</strong> — static analysis.</li>
             </ul>
             <p>
-                Location: <code>.githooks/pre-push</code>. Auto-installed by the container
-                entrypoint when <code>APP_ENV=local</code>.
+                Location: <code>.githooks/pre-push</code>. Git uses it via
+                <code>core.hooksPath</code>, which is per-clone and not tracked.
+                After cloning, run the one-time setup script from the host:
+            </p>
+            <pre>./bin/setup.sh</pre>
+            <p>
+                The hook talks to the running <code>php</code> container, so the stack must
+                be up (<code>docker compose up -d</code>) when you push.
             </p>
         </div>
 

@@ -54,13 +54,6 @@ echo "Running seeders..."
 php artisan db:install
 php artisan db:seed --force
 
-# Install git hooks in local environment
-if [ "$APP_ENV" = "local" ] && [ -d /var/www/html/.git/hooks ] && [ -d /var/www/html/.githooks ]; then
-    cp /var/www/html/.githooks/* /var/www/html/.git/hooks/
-    chmod +x /var/www/html/.git/hooks/*
-    echo "Git hooks installed."
-fi
-
 if [ "$APP_ENV" = "production" ]; then
     echo "Caching configuration, routes, and views..."
     php artisan config:cache
