@@ -1,0 +1,102 @@
+{
+    "info": {
+        "name": "Booking Microservice",
+        "description": "Meeting room booking JSON API. Authenticate with the X-API-Key header.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost",
+            "type": "string"
+        },
+        {
+            "key": "apiKey",
+            "value": "local-dev-api-key-change-me",
+            "type": "string"
+        },
+        {
+            "key": "roomId",
+            "value": "rom_01abcdefghijklmnopqrstuv",
+            "type": "string"
+        },
+        {
+            "key": "userUid",
+            "value": "user-123",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "List rooms",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "X-API-Key", "value": "{{apiKey}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/rooms",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "v1", "rooms"]
+                }
+            }
+        },
+        {
+            "name": "Create booking",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "X-API-Key", "value": "{{apiKey}}" },
+                    { "key": "Content-Type", "value": "application/json" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"room_id\": \"{{roomId}}\",\n    \"user_uid\": \"{{userUid}}\",\n    \"title\": \"Sprint planning\",\n    \"starts_at\": \"2026-05-01T10:00:00Z\",\n    \"ends_at\": \"2026-05-01T11:00:00Z\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/bookings",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "v1", "bookings"]
+                }
+            }
+        },
+        {
+            "name": "List bookings by user",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "X-API-Key", "value": "{{apiKey}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/bookings?user_uid={{userUid}}",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "v1", "bookings"],
+                    "query": [
+                        { "key": "user_uid", "value": "{{userUid}}" }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "List bookings by room",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "X-API-Key", "value": "{{apiKey}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/bookings?room_id={{roomId}}",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "v1", "bookings"],
+                    "query": [
+                        { "key": "room_id", "value": "{{roomId}}" }
+                    ]
+                }
+            }
+        }
+    ]
+}
