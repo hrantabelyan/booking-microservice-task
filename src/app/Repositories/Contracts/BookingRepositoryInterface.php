@@ -16,10 +16,10 @@ interface BookingRepositoryInterface
     /**
      * @return LengthAwarePaginator<int, Booking>
      */
-    public function listByUser(string $userUid, int $perPage): LengthAwarePaginator;
+    public function listByUser(string $userUid, int $perPage, ?string $from = null, ?string $to = null): LengthAwarePaginator;
 
     /**
      * @return LengthAwarePaginator<int, Booking>
      */
-    public function listByRoom(string $roomId, int $perPage): LengthAwarePaginator;
+    public function listByRoom(string $roomId, int $perPage, ?string $from = null, ?string $to = null): LengthAwarePaginator;
 }

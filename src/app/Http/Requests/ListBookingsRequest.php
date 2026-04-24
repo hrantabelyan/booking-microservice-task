@@ -23,6 +23,8 @@ class ListBookingsRequest extends FormRequest
         return [
             'user_uid' => ['required_without:room_id', 'string', 'max:64'],
             'room_id' => ['required_without:user_uid', 'string', 'exists:'.Room::class.',id'],
+            'from' => ['sometimes', 'date'],
+            'to' => ['sometimes', 'date', 'after_or_equal:from'],
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
             'page' => ['sometimes', 'integer', 'min:1'],
         ];

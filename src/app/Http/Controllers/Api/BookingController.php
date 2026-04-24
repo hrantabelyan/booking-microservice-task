@@ -39,6 +39,8 @@ class BookingController extends Controller
             userUid: $request->query('user_uid'),
             roomId: $request->query('room_id'),
             perPage: (int) $request->query('per_page', (string) self::DEFAULT_PER_PAGE),
+            from: $request->query('from'),
+            to: $request->query('to'),
         );
 
         return new BookingCollection($paginator);

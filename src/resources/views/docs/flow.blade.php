@@ -38,11 +38,16 @@
         <div class="panel">
             <h2>3. List bookings</h2>
             <p>
-                <code>GET /api/v1/bookings</code> requires exactly one filter —
-                <code>user_uid</code> or <code>room_id</code>. <code>ListBookingsAction</code>
-                branches to the appropriate repository method; results are sorted by
-                <code>starts_at</code> and returned as a <code>BookingResource</code> collection
-                with the room eager-loaded.
+                <code>GET /api/v1/bookings</code> requires one of <code>user_uid</code> or
+                <code>room_id</code>. Optional date-range filters
+                <code>from</code> / <code>to</code> narrow the result set — a booking is
+                included when its <code>ends_at &gt;= from</code> AND
+                <code>starts_at &lt;= to</code> (i.e. it overlaps the window).
+            </p>
+            <p>
+                Results are sorted by <code>starts_at</code> and returned as a paginated
+                <code>BookingCollection</code> with the room eager-loaded. Pagination
+                accepts <code>per_page</code> (1–100, default 15) and <code>page</code>.
             </p>
         </div>
 

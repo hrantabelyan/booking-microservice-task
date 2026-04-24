@@ -97,6 +97,27 @@
                     ]
                 }
             }
+        },
+        {
+            "name": "List bookings (date range, paginated)",
+            "request": {
+                "method": "GET",
+                "header": [
+                    { "key": "X-API-Key", "value": "{{apiKey}}" },
+                    { "key": "Accept", "value": "application/json" }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/bookings?room_id={{roomId}}&from=2026-05-01&to=2026-05-07&per_page=50",
+                    "host": ["{{baseUrl}}"],
+                    "path": ["api", "v1", "bookings"],
+                    "query": [
+                        { "key": "room_id", "value": "{{roomId}}" },
+                        { "key": "from", "value": "2026-05-01" },
+                        { "key": "to", "value": "2026-05-07" },
+                        { "key": "per_page", "value": "50" }
+                    ]
+                }
+            }
         }
     ]
 }

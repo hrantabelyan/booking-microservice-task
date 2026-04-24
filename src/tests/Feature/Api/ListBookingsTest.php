@@ -56,6 +56,45 @@ class ListBookingsTest extends TestCase
         }
     }
 
+    public function test_filters_by_date_range(): void
+    {
+        $room = Room::factory()->create();
+
+        Booking::factory()->create([
+            'user_uid' => 'user-d',
+            'room_id' => $room->id,
+            'starts_at' => '2026-05-01 10:00:00',
+            'ends_at' => '2026-05-01 11:00:00',
+        ]);
+        Booking::factory()->create([
+            'user_uid' => 'user-d',
+            'room_id' => $room->id,
+            'starts_at' => '2026-05-10 10:00:00',
+            'ends_at' => '2026-05-10 11:00:00',
+        ]);
+        Booking::factory()->create([
+            'user_uid' => 'user-d',
+            'room_id' => $room->id,
+            'starts_at' => '2026-05-20 10:00:00',
+            'ends_at' => '2026-05-20 11:00:00',
+        ]);
+
+        $response = $this->withHeaders(['X-API-Key' => self::API_KEY])
+            ->getJson('/api/v1/bookings?user_uid=user-d&from=2026-05-05&to=2026-05-15');
+
+        $response->assertOk();
+        $this->assertCount(1, $response->json('data'));
+        $this->assertSame('2026-05-10T10:00:00+00:00', $response->json('data.0.starts_at'));
+    }
+
+    public function test_to_must_be_after_or_equal_from(): void
+    {
+        $response = $this->withHeaders(['X-API-Key' => self::API_KEY])
+            ->getJson('/api/v1/bookings?user_uid=user-d&from=2026-05-15&to=2026-05-10');
+
+        $response->assertStatus(422)->assertJsonValidationErrors(['to']);
+    }
+
     public function test_paginates_bookings(): void
     {
         $room = Room::factory()->create();

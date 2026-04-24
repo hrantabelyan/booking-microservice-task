@@ -17,12 +17,17 @@ class ListBookingsAction
     /**
      * @return LengthAwarePaginator<int, Booking>
      */
-    public function execute(?string $userUid, ?string $roomId, int $perPage): LengthAwarePaginator
-    {
+    public function execute(
+        ?string $userUid,
+        ?string $roomId,
+        int $perPage,
+        ?string $from = null,
+        ?string $to = null,
+    ): LengthAwarePaginator {
         if ($userUid !== null) {
-            return $this->bookings->listByUser($userUid, $perPage);
+            return $this->bookings->listByUser($userUid, $perPage, $from, $to);
         }
 
-        return $this->bookings->listByRoom((string) $roomId, $perPage);
+        return $this->bookings->listByRoom((string) $roomId, $perPage, $from, $to);
     }
 }
