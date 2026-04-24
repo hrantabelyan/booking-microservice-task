@@ -133,6 +133,26 @@ class CreateBookingTest extends TestCase
         $response->assertStatus(422)->assertJsonValidationErrors(['ends_at']);
     }
 
+    public function test_rejects_booking_exceeding_max_duration(): void
+    {
+        config(['booking.max_duration_minutes' => 60]);
+
+        $room = Room::factory()->create();
+
+        $payload = [
+            'room_id' => $room->id,
+            'user_uid' => 'user-123',
+            'title' => 'Marathon meeting',
+            'starts_at' => Carbon::now()->addDay()->setTime(10, 0)->toIso8601String(),
+            'ends_at' => Carbon::now()->addDay()->setTime(12, 0)->toIso8601String(),
+        ];
+
+        $response = $this->withHeaders(['X-API-Key' => self::API_KEY])
+            ->postJson('/api/v1/bookings', $payload);
+
+        $response->assertStatus(422)->assertJsonValidationErrors(['ends_at']);
+    }
+
     public function test_rejects_unknown_room(): void
     {
         $payload = [
