@@ -1,9 +1,38 @@
 {
     "info": {
         "name": "Booking Microservice",
-        "description": "Meeting room booking JSON API. Authenticate with the X-API-Key header.",
+        "description": "Meeting room booking JSON API. Authenticate with the X-API-Key header.\n\nThe collection auto-discovers a valid room_id on first run by calling GET /api/v1/rooms — no manual setup required.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "const roomId = pm.collectionVariables.get('roomId');",
+                    "if (!roomId || roomId === '' || roomId === 'rom_REPLACE_ME') {",
+                    "    const baseUrl = pm.collectionVariables.get('baseUrl');",
+                    "    const apiKey = pm.collectionVariables.get('apiKey');",
+                    "    pm.sendRequest({",
+                    "        url: baseUrl + '/api/v1/rooms',",
+                    "        method: 'GET',",
+                    "        header: { 'X-API-Key': apiKey, 'Accept': 'application/json' }",
+                    "    }, function (err, res) {",
+                    "        if (!err && res && res.code === 200) {",
+                    "            const body = res.json();",
+                    "            const rooms = (body && body.data) || [];",
+                    "            if (rooms.length > 0) {",
+                    "                pm.collectionVariables.set('roomId', rooms[0].id);",
+                    "                console.log('Postman: roomId set to ' + rooms[0].id);",
+                    "            }",
+                    "        }",
+                    "    });",
+                    "}"
+                ]
+            }
+        }
+    ],
     "variable": [
         {
             "key": "baseUrl",
@@ -17,7 +46,7 @@
         },
         {
             "key": "roomId",
-            "value": "rom_01abcdefghijklmnopqrstuv",
+            "value": "rom_REPLACE_ME",
             "type": "string"
         },
         {
