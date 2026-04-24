@@ -50,6 +50,19 @@ Key env vars (see `src/.env.example`):
 
 All endpoints live under `/api/v1/` and require the `X-API-Key` header.
 
+### GET /api/v1/rooms
+
+List available meeting rooms. Cached for 5 minutes via Redis.
+
+**Response**
+
+- `200 OK` — `{ "data": [ { "id", "name", "capacity" } ] }`
+
+```bash
+curl -H "X-API-Key: local-dev-api-key-change-me" \
+  http://localhost/api/v1/rooms
+```
+
 ### POST /api/v1/bookings
 
 Create a booking.
