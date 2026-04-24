@@ -47,7 +47,18 @@
         </div>
 
         <div class="panel">
-            <h2>4. Booking confirmation email</h2>
+            <h2>4. Time zones</h2>
+            <p>
+                Timestamps are ISO 8601. Requests may carry a timezone offset (e.g.
+                <code>2026-05-01T10:00:00Z</code> or <code>2026-05-01T15:00:00+05:00</code>);
+                the service normalises everything to <strong>UTC</strong> before persistence
+                (Postgres <code>timestamp without time zone</code>, Laravel app timezone set
+                to UTC). Responses always return UTC ISO 8601 strings.
+            </p>
+        </div>
+
+        <div class="panel">
+            <h2>5. Booking confirmation email</h2>
             <p>
                 <code>CreateBookingAction</code> dispatches <code>BookingCreatedMail</code>
                 after persistence. In local/dev the mail is captured by

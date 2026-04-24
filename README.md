@@ -50,13 +50,24 @@ Key env vars (see `src/.env.example`):
 
 All endpoints live under `/api/v1/` and require the `X-API-Key` header.
 
+### Conventions
+
+- **Timestamps** — all timestamps are ISO 8601. Requests may include a timezone offset
+  (e.g. `2026-05-01T10:00:00Z` or `2026-05-01T15:00:00+05:00`); the service normalises
+  everything to **UTC** for storage. Responses always return UTC ISO 8601 strings
+  (e.g. `2026-05-01T10:00:00+00:00`).
+- **List responses** — use Laravel's standard paginated shape: `{ "data": [...], "links": {...}, "meta": {...} }`.
+  Control page size with `?per_page=` (1–100, default 15) and page with `?page=`.
+- **Single-item responses** — return the object directly, without a `data` wrapper.
+- **Error responses** — `{ "errors": { ... } }` (with a `message` field for validation errors from FormRequest).
+
 ### GET /api/v1/rooms
 
 List available meeting rooms. Cached for 5 minutes via Redis.
 
 **Response**
 
-- `200 OK` — `{ "data": [ { "id", "name", "capacity" } ] }`
+- `200 OK` — `{ "data": [ { "id", "name", "capacity" } ], "meta": { "total": N } }`
 
 ```bash
 curl -H "X-API-Key: local-dev-api-key-change-me" \
@@ -109,11 +120,13 @@ List bookings. **One** of `user_uid` or `room_id` is required.
 
 - `user_uid` — list bookings for this user
 - `room_id` — list bookings for this room
+- `per_page` (optional, 1–100, default 15) — items per page
+- `page` (optional) — page number
 
 **Responses**
 
-- `200 OK` — `{ "data": [ ...bookings ] }` ordered by `starts_at`
-- `422 Unprocessable Entity` — neither filter provided
+- `200 OK` — paginated collection ordered by `starts_at`: `{ "data": [...], "links": {...}, "meta": { "current_page", "last_page", "per_page", "total", ... } }`
+- `422 Unprocessable Entity` — neither filter provided, or `per_page` out of range
 - `401 Unauthorized` — API key missing/invalid
 
 **Examples**

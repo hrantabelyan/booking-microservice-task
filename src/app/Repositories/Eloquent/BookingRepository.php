@@ -6,7 +6,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Booking;
 use App\Repositories\Contracts\BookingRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class BookingRepository implements BookingRepositoryInterface
 {
@@ -24,21 +24,21 @@ class BookingRepository implements BookingRepositoryInterface
             ->exists();
     }
 
-    public function listByUser(string $userUid): Collection
+    public function listByUser(string $userUid, int $perPage): LengthAwarePaginator
     {
         return Booking::query()
             ->with('room')
             ->where('user_uid', $userUid)
             ->orderBy('starts_at')
-            ->get();
+            ->paginate($perPage);
     }
 
-    public function listByRoom(string $roomId): Collection
+    public function listByRoom(string $roomId, int $perPage): LengthAwarePaginator
     {
         return Booking::query()
             ->with('room')
             ->where('room_id', $roomId)
             ->orderBy('starts_at')
-            ->get();
+            ->paginate($perPage);
     }
 }

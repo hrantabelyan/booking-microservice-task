@@ -56,6 +56,33 @@ class ListBookingsTest extends TestCase
         }
     }
 
+    public function test_paginates_bookings(): void
+    {
+        $room = Room::factory()->create();
+        Booking::factory()->count(25)->create(['user_uid' => 'user-p', 'room_id' => $room->id]);
+
+        $response = $this->withHeaders(['X-API-Key' => self::API_KEY])
+            ->getJson('/api/v1/bookings?user_uid=user-p&per_page=10');
+
+        $response->assertOk();
+        $this->assertCount(10, $response->json('data'));
+        $this->assertSame(25, $response->json('meta.total'));
+        $this->assertSame(3, $response->json('meta.last_page'));
+        $this->assertSame(10, $response->json('meta.per_page'));
+        $this->assertNotNull($response->json('links.next'));
+    }
+
+    public function test_per_page_is_capped(): void
+    {
+        $room = Room::factory()->create();
+        Booking::factory()->count(1)->create(['user_uid' => 'user-c', 'room_id' => $room->id]);
+
+        $response = $this->withHeaders(['X-API-Key' => self::API_KEY])
+            ->getJson('/api/v1/bookings?user_uid=user-c&per_page=500');
+
+        $response->assertStatus(422)->assertJsonValidationErrors(['per_page']);
+    }
+
     public function test_requires_user_uid_or_room_id(): void
     {
         $response = $this->withHeaders(['X-API-Key' => self::API_KEY])

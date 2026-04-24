@@ -6,7 +6,7 @@ namespace App\Actions\Booking;
 
 use App\Models\Booking;
 use App\Repositories\Contracts\BookingRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ListBookingsAction
 {
@@ -15,14 +15,14 @@ class ListBookingsAction
     ) {}
 
     /**
-     * @return Collection<int, Booking>
+     * @return LengthAwarePaginator<int, Booking>
      */
-    public function execute(?string $userUid, ?string $roomId): Collection
+    public function execute(?string $userUid, ?string $roomId, int $perPage): LengthAwarePaginator
     {
         if ($userUid !== null) {
-            return $this->bookings->listByUser($userUid);
+            return $this->bookings->listByUser($userUid, $perPage);
         }
 
-        return $this->bookings->listByRoom((string) $roomId);
+        return $this->bookings->listByRoom((string) $roomId, $perPage);
     }
 }

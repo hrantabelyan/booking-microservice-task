@@ -11,6 +11,7 @@ use App\Exceptions\BookingConflictException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ListBookingsRequest;
 use App\Http\Requests\StoreBookingRequest;
+use App\Http\Resources\BookingCollection;
 use App\Http\Resources\BookingResource;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +19,8 @@ use Illuminate\Http\JsonResponse;
 class BookingController extends Controller
 {
     use ApiResponseTrait;
+
+    private const DEFAULT_PER_PAGE = 15;
 
     public function store(StoreBookingRequest $request, CreateBookingAction $action): JsonResponse
     {
@@ -30,13 +33,14 @@ class BookingController extends Controller
         return $this->respondCreated(new BookingResource($booking->load('room')));
     }
 
-    public function index(ListBookingsRequest $request, ListBookingsAction $action): JsonResponse
+    public function index(ListBookingsRequest $request, ListBookingsAction $action): BookingCollection
     {
-        $bookings = $action->execute(
+        $paginator = $action->execute(
             userUid: $request->query('user_uid'),
             roomId: $request->query('room_id'),
+            perPage: (int) $request->query('per_page', (string) self::DEFAULT_PER_PAGE),
         );
 
-        return $this->respondWithSuccess(BookingResource::collection($bookings));
+        return new BookingCollection($paginator);
     }
 }

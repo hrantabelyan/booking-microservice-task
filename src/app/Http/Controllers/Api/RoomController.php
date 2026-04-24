@@ -6,16 +6,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Actions\Room\ListRoomsAction;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\RoomResource;
-use App\Traits\ApiResponseTrait;
-use Illuminate\Http\JsonResponse;
+use App\Http\Resources\RoomCollection;
 
 class RoomController extends Controller
 {
-    use ApiResponseTrait;
-
-    public function index(ListRoomsAction $action): JsonResponse
+    public function index(ListRoomsAction $action): RoomCollection
     {
-        return $this->respondWithSuccess(RoomResource::collection($action->execute()));
+        return new RoomCollection($action->execute());
     }
 }
