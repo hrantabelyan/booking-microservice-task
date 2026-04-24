@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\ValidateApiKey;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'api.key' => \App\Http\Middleware\ValidateApiKey::class,
+            'api.key' => ValidateApiKey::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -27,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
+        $exceptions->renderable(function (AuthenticationException $e, $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json(['error' => 'Unauthenticated'], 401, [], JSON_UNESCAPED_UNICODE);
             }
