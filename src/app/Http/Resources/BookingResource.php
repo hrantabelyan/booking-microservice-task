@@ -23,8 +23,8 @@ class BookingResource extends JsonResource
             'room_id' => $this->room_id,
             'user_uid' => $this->user_uid,
             'title' => $this->title,
-            'starts_at' => $this->starts_at?->toIso8601String(),
-            'ends_at' => $this->ends_at?->toIso8601String(),
+            'starts_at' => $this->starts_at->toIso8601String(),
+            'ends_at' => $this->ends_at->toIso8601String(),
             'room' => new RoomResource($this->whenLoaded('room')),
             'created_at' => $this->created_at?->toIso8601String(),
         ];

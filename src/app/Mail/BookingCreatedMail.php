@@ -33,8 +33,8 @@ class BookingCreatedMail extends Mailable
             with: [
                 'title' => $this->booking->title,
                 'roomName' => $this->booking->room?->name,
-                'startsAt' => $this->booking->starts_at?->toDayDateTimeString(),
-                'endsAt' => $this->booking->ends_at?->toDayDateTimeString(),
+                'startsAt' => $this->booking->starts_at->toDayDateTimeString(),
+                'endsAt' => $this->booking->ends_at->toDayDateTimeString(),
             ],
         );
     }
